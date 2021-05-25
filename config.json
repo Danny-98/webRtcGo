@@ -1,0 +1,27 @@
+{
+  "server": {
+    "http_port": ":80",
+    "ice_servers": [
+      "stun:stun.l.google.com:19302"
+    ],
+    "ice_username": "",
+    "ice_credential": ""
+  },
+  "streams": {
+    "camera_64_H264_AAC": {
+      "on_demand": false,
+      "disable_audio": true,
+      "url": "rtsp://admin:An123456@vinstargroup.ddns.net:554/Streaming/channels/101/"
+    },
+    "camera_65_H264_AAC": {
+      "on_demand": true,
+      "disable_audio": true,
+      "url": "rtsp://admin:An123456@vinstargroup.ddns.net:556/Streaming/channels/101/"
+    },
+    "camera_66_H264_AAC": {
+      "on_demand": true,
+      "disable_audio": true,
+      "url": "rtsp://admin:An123456@vinstargroup.ddns.net:555/Streaming/channels/101/"
+    }
+  }
+}
