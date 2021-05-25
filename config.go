@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"sync"
 	"time"
 
@@ -127,7 +128,7 @@ func loadConfig() *ConfigST {
 			tmp.Streams[i] = v
 		}
 	} else {
-		addr := flag.String("listen", "80", "HTTP host:port")
+		addr := flag.String("listen", os.Getenv("PORT"), "HTTP host:port")
 		udpMin := flag.Int("udp_min", 0, "WebRTC UDP port min")
 		udpMax := flag.Int("udp_max", 0, "WebRTC UDP port max")
 		iceServer := flag.String("ice_server", "", "ICE Server")

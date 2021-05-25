@@ -35,7 +35,7 @@ func serveHTTP() {
 	router.POST("/stream", HTTPAPIServerStreamWebRTC2)
 
 	router.StaticFS("/static", http.Dir("web/static"))
-	err := router.Run(Config.Server.HTTPPort)
+	err := router.Run(os.Getenv("PORT"))
 	if err != nil {
 		log.Fatalln("Start HTTP Server error", err)
 	}
@@ -50,7 +50,7 @@ func HTTPAPIServerIndex(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "stream/player/"+all[0])
 	} else {
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"port":    Config.Server.HTTPPort,
+			"port":    os.Getenv("PORT"),
 			"version": time.Now().String(),
 		})
 	}
@@ -61,7 +61,7 @@ func HTTPAPIServerStreamPlayer(c *gin.Context) {
 	_, all := Config.list()
 	sort.Strings(all)
 	c.HTML(http.StatusOK, "player.tmpl", gin.H{
-		"port":     Config.Server.HTTPPort,
+		"port":     os.Getenv("PORT"),
 		"suuid":    c.Param("uuid"),
 		"suuidMap": all,
 		"version":  time.Now().String(),
@@ -73,7 +73,7 @@ func HTTPAPIServerStreamPreview(c *gin.Context) {
 	_, all := Config.list()
 	sort.Strings(all)
 	c.HTML(http.StatusOK, "preview.tmpl", gin.H{
-		"port":     Config.Server.HTTPPort,
+		"port":     os.Getenv("PORT"),
 		"suuid":    c.Param("uuid"),
 		"suuidMap": all,
 		"version":  time.Now().String(),
