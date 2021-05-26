@@ -18,6 +18,8 @@ type JCodec struct {
 	Type string
 }
 
+var port = os.Getenv("PORT")
+
 func serveHTTP() {
 	gin.SetMode(gin.ReleaseMode)
 
@@ -35,7 +37,11 @@ func serveHTTP() {
 	router.POST("/stream", HTTPAPIServerStreamWebRTC2)
 
 	router.StaticFS("/static", http.Dir("web/static"))
-	err := router.Run(os.Getenv("PORT"))
+
+	if port == "" {
+		port = Config.Server.HTTPPort
+	}
+	err := router.Run(":" + port)
 	if err != nil {
 		log.Fatalln("Start HTTP Server error", err)
 	}
@@ -44,13 +50,17 @@ func serveHTTP() {
 //HTTPAPIServerIndex  index
 func HTTPAPIServerIndex(c *gin.Context) {
 	_, all := Config.list()
+	if port == "" {
+		port = Config.Server.HTTPPort
+	}
+	log.Println(port)
 	if len(all) > 0 {
 		c.Header("Cache-Control", "no-cache, max-age=0, must-revalidate, no-store")
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Redirect(http.StatusMovedPermanently, "stream/player/"+all[0])
 	} else {
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"port":    os.Getenv("PORT"),
+			"port":    port,
 			"version": time.Now().String(),
 		})
 	}
@@ -60,8 +70,12 @@ func HTTPAPIServerIndex(c *gin.Context) {
 func HTTPAPIServerStreamPlayer(c *gin.Context) {
 	_, all := Config.list()
 	sort.Strings(all)
+	if port == "" {
+		port = Config.Server.HTTPPort
+
+	}
 	c.HTML(http.StatusOK, "player.tmpl", gin.H{
-		"port":     os.Getenv("PORT"),
+		"port":     port,
 		"suuid":    c.Param("uuid"),
 		"suuidMap": all,
 		"version":  time.Now().String(),
@@ -72,8 +86,12 @@ func HTTPAPIServerStreamPlayer(c *gin.Context) {
 func HTTPAPIServerStreamPreview(c *gin.Context) {
 	_, all := Config.list()
 	sort.Strings(all)
+	if port == "" {
+		port = Config.Server.HTTPPort
+
+	}
 	c.HTML(http.StatusOK, "preview.tmpl", gin.H{
-		"port":     os.Getenv("PORT"),
+		"port":     port,
 		"suuid":    c.Param("uuid"),
 		"suuidMap": all,
 		"version":  time.Now().String(),
@@ -83,6 +101,7 @@ func HTTPAPIServerStreamPreview(c *gin.Context) {
 //HTTPAPIServerStreamCodec stream codec
 func HTTPAPIServerStreamCodec(c *gin.Context) {
 	if Config.ext(c.Param("uuid")) {
+
 		Config.RunIFNotRun(c.Param("uuid"))
 		codecs := Config.coGe(c.Param("uuid"))
 		if codecs == nil {
