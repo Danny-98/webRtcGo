@@ -9,9 +9,9 @@ import (
 )
 
 var (
-	ErrorStreamExitNoVideoOnStream = errors.New("Stream Exit No Video On Stream")
-	ErrorStreamExitRtspDisconnect  = errors.New("Stream Exit Rtsp Disconnect")
-	ErrorStreamExitNoViewer        = errors.New("Stream Exit On Demand No Viewer")
+	ErrorStreamExitNoVideoOnStream = errors.New("stream Exit No Video On Stream")
+	ErrorStreamExitRtspDisconnect  = errors.New("stream Exit Rtsp Disconnect")
+	ErrorStreamExitNoViewer        = errors.New("stream Exit On Demand No Viewer")
 )
 
 func serveStreams() {
@@ -27,7 +27,7 @@ func RTSPWorkerLoop(name, url string, OnDemand, DisableAudio, Debug bool) {
 		log.Println("Stream Try Connect", name)
 		err := RTSPWorker(name, url, OnDemand, DisableAudio, Debug)
 		if err != nil {
-			log.Println(err)
+			log.Println("RTSPWorkerLoop", err)
 			Config.LastError = err
 		}
 		if OnDemand && !Config.HasViewer(name) {

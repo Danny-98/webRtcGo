@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -53,7 +54,8 @@ func HTTPAPIServerIndex(c *gin.Context) {
 	if port == "" {
 		port = Config.Server.HTTPPort
 	}
-	log.Println(port)
+	token := c.Query("id")
+	log.Println("token", token)
 	if len(all) > 0 {
 		c.Header("Cache-Control", "no-cache, max-age=0, must-revalidate, no-store")
 		c.Header("Access-Control-Allow-Origin", "*")
@@ -66,6 +68,41 @@ func HTTPAPIServerIndex(c *gin.Context) {
 	}
 }
 
+func CheckToken(token string) string {
+	url := "https://lk-backend-dev.azurewebsites.net/api/Users/info"
+	method := "GET"
+
+	client := &http.Client{}
+	req, err := http.NewRequest(method, url, nil)
+
+	if err != nil {
+		log.Println(err)
+		return "Request Fail"
+	}
+	req.Header.Add("Authorization", "Bearer "+token)
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Println(err)
+		return "Authorization Fail"
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Println(err)
+		return "Read Data Fail"
+	}
+
+	data := string(body)
+	if data != "" {
+		log.Println("data", string(body))
+		return "success"
+
+	}
+	return "Fail"
+}
+
 //HTTPAPIServerStreamPlayer stream player
 func HTTPAPIServerStreamPlayer(c *gin.Context) {
 	_, all := Config.list()
@@ -74,12 +111,21 @@ func HTTPAPIServerStreamPlayer(c *gin.Context) {
 		port = Config.Server.HTTPPort
 
 	}
-	c.HTML(http.StatusOK, "player.tmpl", gin.H{
-		"port":     port,
-		"suuid":    c.Param("uuid"),
-		"suuidMap": all,
-		"version":  time.Now().String(),
-	})
+	token := c.Query("id")
+	isCheck := CheckToken(token)
+	if isCheck == "success" {
+		c.HTML(http.StatusOK, "player.tmpl", gin.H{
+			"port":     port,
+			"suuid":    c.Param("uuid"),
+			"suuidMap": all,
+			"version":  time.Now().String(),
+		})
+	} else {
+		c.HTML(http.StatusOK, "error.tmpl", gin.H{
+			"message": isCheck,
+		})
+	}
+
 }
 
 //HTTPAPIServerStreamPreview stream player
@@ -90,12 +136,21 @@ func HTTPAPIServerStreamPreview(c *gin.Context) {
 		port = Config.Server.HTTPPort
 
 	}
-	c.HTML(http.StatusOK, "preview.tmpl", gin.H{
-		"port":     port,
-		"suuid":    c.Param("uuid"),
-		"suuidMap": all,
-		"version":  time.Now().String(),
-	})
+	token := c.Query("id")
+	isCheck := CheckToken(token)
+	if isCheck == "success" {
+		c.HTML(http.StatusOK, "preview.tmpl", gin.H{
+			"port":     port,
+			"suuid":    c.Param("uuid"),
+			"suuidMap": all,
+			"version":  time.Now().String(),
+		})
+	} else {
+		c.HTML(http.StatusOK, "error.tmpl", gin.H{
+			"message": isCheck,
+		})
+	}
+
 }
 
 //HTTPAPIServerStreamCodec stream codec
