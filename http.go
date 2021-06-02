@@ -30,6 +30,7 @@ func serveHTTP() {
 	if _, err := os.Stat("./web"); !os.IsNotExist(err) {
 		router.LoadHTMLGlob("web/templates/*")
 		router.GET("/", HTTPAPIServerIndex)
+		router.GET("/stream/Count", HTTPAPIServerStreamCount)
 		router.GET("/stream/player/:uuid", HTTPAPIServerStreamPlayer)
 		router.GET("/stream/preview/:uuid", HTTPAPIServerStreamPreview)
 	}
@@ -54,8 +55,6 @@ func HTTPAPIServerIndex(c *gin.Context) {
 	if port == "" {
 		port = Config.Server.HTTPPort
 	}
-	token := c.Query("id")
-	log.Println("token", token)
 	if len(all) > 0 {
 		c.Header("Cache-Control", "no-cache, max-age=0, must-revalidate, no-store")
 		c.Header("Access-Control-Allow-Origin", "*")
@@ -96,11 +95,32 @@ func CheckToken(token string) string {
 
 	data := string(body)
 	if data != "" {
-		log.Println("data", string(body))
 		return "success"
-
 	}
 	return "Fail"
+}
+
+func HTTPAPIServerStreamCount(c *gin.Context) {
+	if port == "" {
+		port = Config.Server.HTTPPort
+
+	}
+	token := c.Query("id")
+	isCheck := CheckToken(token)
+	iframeUrl := c.Query("url")
+	if iframeUrl == "" {
+		iframeUrl = "192.168.1.21:8080"
+	}
+	log.Println("iframeUrl", iframeUrl)
+	if isCheck == "success" {
+		c.HTML(http.StatusOK, "countVehicle.tmpl", gin.H{
+			"url": iframeUrl,
+		})
+	} else {
+		c.HTML(http.StatusOK, "error.tmpl", gin.H{
+			"message": isCheck,
+		})
+	}
 }
 
 //HTTPAPIServerStreamPlayer stream player
