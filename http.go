@@ -55,7 +55,6 @@ func HTTPAPIServerIndex(c *gin.Context) {
 		port = Config.Server.HTTPPort
 	}
 	token := c.Query("id")
-	log.Println("token", token)
 	if len(all) > 0 {
 		c.Header("Cache-Control", "no-cache, max-age=0, must-revalidate, no-store")
 		c.Header("Access-Control-Allow-Origin", "*")
