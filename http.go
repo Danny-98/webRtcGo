@@ -97,7 +97,7 @@ func CheckToken(token string) string {
 	if data != "" {
 		return "success"
 	}
-	return "Fail"
+	return "fail"
 }
 
 func HTTPAPIServerStreamCount(c *gin.Context) {
@@ -109,9 +109,8 @@ func HTTPAPIServerStreamCount(c *gin.Context) {
 	isCheck := CheckToken(token)
 	iframeUrl := c.Query("url")
 	if iframeUrl == "" {
-		iframeUrl = "192.168.1.21:8080"
+		iframeUrl = ""
 	}
-	log.Println("iframeUrl", iframeUrl)
 	if isCheck == "success" {
 		c.HTML(http.StatusOK, "countVehicle.tmpl", gin.H{
 			"url": iframeUrl,
